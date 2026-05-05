@@ -1,0 +1,1 @@
+Place blmc-logo.png in this folder.

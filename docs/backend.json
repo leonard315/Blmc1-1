@@ -1,0 +1,892 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the BLMC Service Management System, including their authentication details, personal information, and assigned role.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for login and communication.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "middleName": {
+          "type": "string",
+          "description": "The middle name of the user (optional)."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The user's primary contact number."
+        },
+        "address": {
+          "type": "string",
+          "description": "The user's physical address."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The user's date of birth.",
+          "format": "date"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role assigned to the user, determining their access level. (Enum: Admin, Staff, Member)"
+        },
+        "registrationStatus": {
+          "type": "string",
+          "description": "The current status of the user's registration within the system. (Enum: Pending, Approved, Rejected, Deactivated)"
+        },
+        "dateRegistered": {
+          "type": "string",
+          "description": "The date and time when the user registered in the system.",
+          "format": "date-time"
+        },
+        "dateApprovedRejected": {
+          "type": "string",
+          "description": "The date and time when the user's registration was approved or rejected.",
+          "format": "date-time"
+        },
+        "approvedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who approved or rejected the registration. (Relationship: User 1:N User)"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the user account is currently active in the system."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "contactNumber",
+        "address",
+        "dateOfBirth",
+        "role",
+        "registrationStatus",
+        "dateRegistered",
+        "isActive"
+      ]
+    },
+    "Announcement": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Announcement",
+      "type": "object",
+      "description": "Stores official announcements from the cooperative to its members and staff.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Announcement entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the announcement."
+        },
+        "content": {
+          "type": "string",
+          "description": "The full text content of the announcement."
+        },
+        "publishDate": {
+          "type": "string",
+          "description": "The date and time when the announcement was published.",
+          "format": "date-time"
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "The date and time when the announcement will expire or become less relevant.",
+          "format": "date-time"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who created the announcement. (Relationship: User 1:N Announcement)"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "Indicates if the announcement has been archived."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "publishDate",
+        "authorId",
+        "isArchived"
+      ]
+    },
+    "Event": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Event",
+      "type": "object",
+      "description": "Stores details about cooperative events, including date, time, and location.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Event entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title or name of the event."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the event."
+        },
+        "location": {
+          "type": "string",
+          "description": "The physical or virtual location where the event will take place."
+        },
+        "eventDateTime": {
+          "type": "string",
+          "description": "The specific date and time when the event is scheduled.",
+          "format": "date-time"
+        },
+        "postedDate": {
+          "type": "string",
+          "description": "The date and time when the event was added to the system.",
+          "format": "date-time"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who created the event. (Relationship: User 1:N Event)"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "Indicates if the event has been archived."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "location",
+        "eventDateTime",
+        "postedDate",
+        "authorId",
+        "isArchived"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Manages real-time notifications sent to individual users regarding various system activities or updates.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User ID who is the recipient of this notification. (Relationship: User 1:N Notification)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The category or type of the notification (e.g., Announcement, Event, RegistrationStatus, SavingsUpdate, DebtUpdate, FeedbackResponse, SystemAlert)."
+        },
+        "title": {
+          "type": "string",
+          "description": "A brief title for the notification."
+        },
+        "message": {
+          "type": "string",
+          "description": "The full message content of the notification."
+        },
+        "link": {
+          "type": "string",
+          "description": "An optional URL that the notification can link to for more details.",
+          "format": "uri"
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Indicates whether the user has read this notification."
+        },
+        "createdDate": {
+          "type": "string",
+          "description": "The date and time when the notification was created.",
+          "format": "date-time"
+        },
+        "relatedEntityId": {
+          "type": "string",
+          "description": "An optional reference to the ID of the entity (e.g., Announcement, Event, RegistrationApplication) that this notification pertains to."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "title",
+        "message",
+        "isRead",
+        "createdDate"
+      ]
+    },
+    "RegistrationApplication": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RegistrationApplication",
+      "type": "object",
+      "description": "Holds the data for a prospective member's online registration application before approval.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the RegistrationApplication entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the applicant."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the applicant."
+        },
+        "middleName": {
+          "type": "string",
+          "description": "The middle name of the applicant (optional)."
+        },
+        "email": {
+          "type": "string",
+          "description": "The applicant's email address.",
+          "format": "email"
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The applicant's contact number."
+        },
+        "address": {
+          "type": "string",
+          "description": "The applicant's physical address."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The applicant's date of birth.",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the application (e.g., Pending, Approved, Rejected)."
+        },
+        "applicationDate": {
+          "type": "string",
+          "description": "The date and time when the application was submitted.",
+          "format": "date-time"
+        },
+        "responseDate": {
+          "type": "string",
+          "description": "The date and time when the application was reviewed and a decision was made.",
+          "format": "date-time"
+        },
+        "respondedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who processed this application. (Relationship: User 1:N RegistrationApplication)"
+        },
+        "remarks": {
+          "type": "string",
+          "description": "Any comments or reasons provided by the Admin/Staff regarding the application's status (e.g., reason for rejection)."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "contactNumber",
+        "address",
+        "dateOfBirth",
+        "status",
+        "applicationDate"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Manages the inventory of products available for members to borrow or purchase from the cooperative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the product."
+        },
+        "quantityAvailable": {
+          "type": "number",
+          "description": "The current quantity of the product available in inventory."
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "The price of one unit of the product, used for calculating credit value."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indicates whether the product is currently available for transactions."
+        },
+        "dateAdded": {
+          "type": "string",
+          "description": "The date and time when the product was added to the inventory.",
+          "format": "date-time"
+        },
+        "lastUpdatedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who last updated this product's information. (Relationship: User 1:N Product)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "quantityAvailable",
+        "unitPrice",
+        "isAvailable",
+        "dateAdded",
+        "lastUpdatedByUserId"
+      ]
+    },
+    "CreditTransaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CreditTransaction",
+      "type": "object",
+      "description": "Records instances where members borrow products or funds on credit from the cooperative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CreditTransaction entity."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Reference to the User ID (Member) who initiated the credit transaction. (Relationship: User 1:N CreditTransaction)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product ID that was borrowed on credit. (Relationship: Product 1:N CreditTransaction)"
+        },
+        "quantityBorrowed": {
+          "type": "number",
+          "description": "The quantity of the product borrowed."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary value of the products borrowed on credit."
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "The date and time when the credit request was made.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the credit transaction (e.g., Pending, Approved, Rejected, Paid, Overdue)."
+        },
+        "approvalDate": {
+          "type": "string",
+          "description": "The date and time when the credit transaction was approved.",
+          "format": "date-time"
+        },
+        "approvedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who approved the credit transaction. (Relationship: User 1:N CreditTransaction)"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The date by which the credit amount is due to be paid.",
+          "format": "date"
+        },
+        "remarks": {
+          "type": "string",
+          "description": "Any additional comments or notes related to the credit transaction."
+        },
+        "balanceDue": {
+          "type": "number",
+          "description": "The remaining amount due on this credit transaction."
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "productId",
+        "quantityBorrowed",
+        "totalAmount",
+        "requestDate",
+        "status",
+        "dueDate",
+        "balanceDue"
+      ]
+    },
+    "SavingTransaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SavingTransaction",
+      "type": "object",
+      "description": "Records individual deposits or withdrawals made by members into their savings accounts.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SavingTransaction entity."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Reference to the User ID (Member) associated with this saving transaction. (Relationship: User 1:N SavingTransaction)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the saving transaction (positive for deposit, negative for withdrawal)."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "The date and time when the saving transaction occurred.",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of saving transaction (e.g., Deposit, Withdrawal, Interest)."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the saving transaction (e.g., Pending, Approved, Rejected) for admin verification."
+        },
+        "processedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who processed or verified this transaction. (Relationship: User 1:N SavingTransaction)"
+        },
+        "verificationDate": {
+          "type": "string",
+          "description": "The date and time when the saving transaction was verified.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "amount",
+        "transactionDate",
+        "type",
+        "status"
+      ]
+    },
+    "Payment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Payment",
+      "type": "object",
+      "description": "Records payments made by members, typically towards outstanding credit transactions.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Payment entity."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Reference to the User ID (Member) who made the payment. (Relationship: User 1:N Payment)"
+        },
+        "creditTransactionId": {
+          "type": "string",
+          "description": "Optional reference to the CreditTransaction ID that this payment is applied against. (Relationship: CreditTransaction 1:N Payment)"
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "The monetary amount paid by the member."
+        },
+        "paymentDate": {
+          "type": "string",
+          "description": "The date and time when the payment was made.",
+          "format": "date-time"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The method used for the payment (e.g., Cash, Bank Transfer, Online)."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the payment (e.g., Pending, Approved, Rejected) for admin verification."
+        },
+        "processedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who processed or verified this payment. (Relationship: User 1:N Payment)"
+        },
+        "verificationDate": {
+          "type": "string",
+          "description": "The date and time when the payment was verified.",
+          "format": "date-time"
+        },
+        "confirmationCode": {
+          "type": "string",
+          "description": "An optional unique code for payment confirmation."
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "amountPaid",
+        "paymentDate",
+        "status"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "description": "Records significant actions and changes within the system for security, compliance, and troubleshooting purposes.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AuditLog entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User ID who performed the action, if applicable. (Relationship: User 1:N AuditLog)"
+        },
+        "action": {
+          "type": "string",
+          "description": "A description of the action performed (e.g., 'User Login', 'Product Created', 'Credit Approved')."
+        },
+        "entityType": {
+          "type": "string",
+          "description": "The type of entity affected by the action (e.g., 'User', 'Product', 'CreditTransaction')."
+        },
+        "entityId": {
+          "type": "string",
+          "description": "The ID of the specific entity instance affected by the action."
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional details about the action, potentially including changes made or context."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The date and time when the action occurred.",
+          "format": "date-time"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "The IP address from which the action was initiated.",
+          "format": "ipv4"
+        }
+      },
+      "required": [
+        "id",
+        "action",
+        "timestamp"
+      ]
+    },
+    "Feedback": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Feedback",
+      "type": "object",
+      "description": "Captures general feedback, inquiries, or remarks submitted by members to the cooperative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Feedback entity."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Reference to the User ID (Member) who submitted the feedback. (Relationship: User 1:N Feedback)"
+        },
+        "subject": {
+          "type": "string",
+          "description": "A brief subject line summarizing the feedback."
+        },
+        "message": {
+          "type": "string",
+          "description": "The full message or content of the feedback."
+        },
+        "submissionDate": {
+          "type": "string",
+          "description": "The date and time when the feedback was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the feedback (e.g., New, InProgress, Resolved)."
+        },
+        "response": {
+          "type": "string",
+          "description": "The response or resolution provided by an Admin/Staff member."
+        },
+        "responseDate": {
+          "type": "string",
+          "description": "The date and time when a response was provided to the feedback.",
+          "format": "date-time"
+        },
+        "respondedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin/Staff) who provided the response. (Relationship: User 1:N Feedback)"
+        }
+      },
+      "required": [
+        "id",
+        "memberId",
+        "message",
+        "submissionDate",
+        "status"
+      ]
+    },
+    "SystemSetting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SystemSetting",
+      "type": "object",
+      "description": "Stores global configuration parameters for the system, manageable by administrators.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SystemSetting entity (e.g., a descriptive key)."
+        },
+        "settingKey": {
+          "type": "string",
+          "description": "A unique key that identifies the specific system setting (e.g., 'registrationApprovalRequired', 'maxCreditLimit')."
+        },
+        "settingValue": {
+          "type": "string",
+          "description": "The value of the system setting, stored as a string regardless of its actual data type."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief explanation of what this system setting controls."
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Hint for interpreting the 'settingValue' (e.g., 'string', 'number', 'boolean', 'json')."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The date and time when this setting was last updated.",
+          "format": "date-time"
+        },
+        "lastUpdatedByUserId": {
+          "type": "string",
+          "description": "Reference to the User ID (Admin) who last updated this system setting. (Relationship: User 1:N SystemSetting)"
+        }
+      },
+      "required": [
+        "id",
+        "settingKey",
+        "settingValue",
+        "lastUpdated",
+        "lastUpdatedByUserId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles including authentication details, personal information, and assigned role. Access is restricted to the user themselves (read/update personal info) and Admin/Staff (read/update all users). The 'role' field is critical for rule-based access control throughout the system.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores individual, private notifications for each user. Access is strictly limited to the owner (userId in path) and system processes. This structure explicitly provides Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of the notification recipient."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier for the notification."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/announcements/{announcementId}",
+        "definition": {
+          "entityName": "Announcement",
+          "schema": {
+            "$ref": "#/backend/entities/Announcement"
+          },
+          "description": "Contains public announcements from the cooperative. Members can read, while Admin/Staff can create, read, update, and delete. Includes denormalized 'authorId' for rule validation.",
+          "params": [
+            {
+              "name": "announcementId",
+              "description": "The unique identifier for the announcement."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}",
+        "definition": {
+          "entityName": "Event",
+          "schema": {
+            "$ref": "#/backend/entities/Event"
+          },
+          "description": "Stores details about cooperative events. Members can read, while Admin/Staff can create, read, update, and delete. Includes denormalized 'authorId' for rule validation.",
+          "params": [
+            {
+              "name": "eventId",
+              "description": "The unique identifier for the event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/registrationApplications/{applicationId}",
+        "definition": {
+          "entityName": "RegistrationApplication",
+          "schema": {
+            "$ref": "#/backend/entities/RegistrationApplication"
+          },
+          "description": "Holds prospective member applications. Applicants can create and read their own application status (via email matching), while Admin/Staff can read, update, and reject/approve all applications. Includes denormalized 'email' and 'respondedByUserId' for authorization.",
+          "params": [
+            {
+              "name": "applicationId",
+              "description": "The unique identifier for the registration application."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Manages cooperative products. Members can read available products, while Admin/Staff can perform full CRUD operations. Includes denormalized 'lastUpdatedByUserId' for rule validation.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/creditTransactions/{creditTransactionId}",
+        "definition": {
+          "entityName": "CreditTransaction",
+          "schema": {
+            "$ref": "#/backend/entities/CreditTransaction"
+          },
+          "description": "Records member credit transactions. Members can read their own transactions via queries (e.g., on 'memberId'), while Admin/Staff have full CRUD access. Includes denormalized 'memberId' and 'approvedByUserId' for Authorization Independence and QAP support.",
+          "params": [
+            {
+              "name": "creditTransactionId",
+              "description": "The unique identifier for the credit transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/savingTransactions/{savingTransactionId}",
+        "definition": {
+          "entityName": "SavingTransaction",
+          "schema": {
+            "$ref": "#/backend/entities/SavingTransaction"
+          },
+          "description": "Records member saving transactions. Members can read their own transactions via queries (e.g., on 'memberId'), while Admin/Staff have full CRUD access. Includes denormalized 'memberId' and 'processedByUserId' for Authorization Independence and QAP support.",
+          "params": [
+            {
+              "name": "savingTransactionId",
+              "description": "The unique identifier for the saving transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/payments/{paymentId}",
+        "definition": {
+          "entityName": "Payment",
+          "schema": {
+            "$ref": "#/backend/entities/Payment"
+          },
+          "description": "Records member payments. Members can read their own payments via queries (e.g., on 'memberId'), while Admin/Staff have full CRUD access. Includes denormalized 'memberId' and 'processedByUserId' for Authorization Independence and QAP support.",
+          "params": [
+            {
+              "name": "paymentId",
+              "description": "The unique identifier for the payment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/auditLogs/{auditLogId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
+          },
+          "description": "Logs significant system actions. Read-only for Admin/Staff. Writes are typically performed by Cloud Functions or trusted system processes. Includes denormalized 'userId' of the actor for traceability.",
+          "params": [
+            {
+              "name": "auditLogId",
+              "description": "The unique identifier for the audit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/feedback/{feedbackId}",
+        "definition": {
+          "entityName": "Feedback",
+          "schema": {
+            "$ref": "#/backend/entities/Feedback"
+          },
+          "description": "Captures member feedback. Members can create and read their own feedback via queries (e.g., on 'memberId'), while Admin/Staff have full CRUD access. Includes denormalized 'memberId' and 'respondedByUserId' for Authorization Independence and QAP support.",
+          "params": [
+            {
+              "name": "feedbackId",
+              "description": "The unique identifier for the feedback entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/systemSettings/{settingId}",
+        "definition": {
+          "entityName": "SystemSetting",
+          "schema": {
+            "$ref": "#/backend/entities/SystemSetting"
+          },
+          "description": "Stores global system configurations. Strictly Admin-only for read and write access. Includes denormalized 'lastUpdatedByUserId' for traceability and authorization.",
+          "params": [
+            {
+              "name": "settingId",
+              "description": "The unique key identifier for the system setting (e.g., 'registrationApprovalRequired')."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for the BLMC Service Management System is designed around the core principles of Authorization Independence, Structural Segregation, and consistent Access Modeling to ensure security, scalability, and debuggability. \n\n**Authorization Independence:** This is primarily achieved through two mechanisms:\n1.  **Path-Based Ownership:** For entities strictly belonging to a single user, such as `Notification`, a hierarchical path like `/users/{userId}/notifications/{notificationId}` is used. This embeds the authorization context directly into the document's path, allowing security rules to verify `request.auth.uid == userId` without needing to perform a `get()` operation on a parent document or read fields from other documents. This ensures atomic creation and updates and simplifies rule logic.\n2.  **Denormalization of Authorization Fields:** For most other entities (e.g., `Announcement`, `Event`, `CreditTransaction`, `SavingTransaction`, `Payment`, `Feedback`, `Product`, `RegistrationApplication`, `AuditLog`, `SystemSetting`), key authorization-relevant user IDs (like `authorId`, `memberId`, `approvedByUserId`, `processedByUserId`, `lastUpdatedByUserId`, `respondedByUserId`, `userId`) are explicitly stored as fields within the document itself, even if they refer to a user in the `/users` collection. This allows security rules to check conditions like `resource.data.memberId == request.auth.uid` directly from the document being accessed, eliminating `get()` calls for authorization purposes and preventing transactional complexities. For example, a `CreditTransaction` document includes `memberId` so rules can directly check who owns it without looking up the associated user or a 'parent' credit document.\n\n**Structural Segregation (Homogeneous Security Posture):**\nCollections are designed so that all documents within a given collection share the same high-level security requirements. This simplifies security rules significantly:\n*   `/announcements` and `/events`: These are public-readable for all authenticated users but only writable by Admin/Staff. Their uniform public-read posture makes rules straightforward.\n*   `/products`: Similarly, products are viewable by all authenticated users (for credit requests) but manageable only by Admin/Staff.\n*   `/users/{userId}/notifications`: Each user's notifications are strictly private to them, enforced by the path structure.\n*   `/registrationApplications`, `/creditTransactions`, `/savingTransactions`, `/payments`, `/feedback`: These are top-level collections where users can primarily interact with their *own* data via queries (e.g., `where('memberId', '==', request.auth.uid)`), while Admin/Staff have broader read/write access. The uniform security model within each collection means rules don't need complex conditional logic based on document content for different access types, but rather on user roles and explicit ownership fields.\n\n**QAP (Queries are not Filters) Support:**\nThis structure directly supports QAPs by enabling secure `list` operations without relying on Firestore to filter results based on security rules. Instead, the design encourages:\n*   **Path-Based Listing:** For `/users/{userId}/notifications`, a user can only `list` documents under their specific `userId` path, automatically filtering results by ownership.\n*   **Query-Based Listing with Denormalized Fields:** For collections like `/creditTransactions` or `/feedback`, members can perform `list` operations by querying `where('memberId', '==', request.auth.uid)`. The security rules will then simply verify that `request.auth.uid` matches the `memberId` in the queried documents, or that the user has an Admin/Staff role to bypass this check. This moves the filtering responsibility to the client query, which is then validated by robust, simple rules. Admin/Staff, having a higher role, can perform `list` operations without such filters, and the rules will grant them access based on their `role` derived from their `/users/{uid}` document. This ensures that a `list` operation will only ever return documents the user is explicitly authorized to see, either through a query filter or through their elevated role, thus adhering to QAP."
+  }
+}

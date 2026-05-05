@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'administrator';
+    }
+
+    function isStaff() {
+      return isSignedIn() && getUserData().role == 'staff';
+    }
+
+    function isManagement() {
+      return isAdmin() || isStaff();
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isManagement();
+      allow list: if isManagement();
+      allow create: if isSignedIn();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Announcements ─────────────────────────────────────────────────────
+    match /announcements/{id} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isManagement();
+    }
+
+    // ── Products / Inventory ──────────────────────────────────────────────
+    match /products/{id} {
+      allow read: if isSignedIn();
+      allow create, update: if isManagement();
+      allow delete: if isAdmin();
+    }
+
+    // ── Transactions ──────────────────────────────────────────────────────
+    match /transactions/{id} {
+      allow read: if isSignedIn();
+      allow create: if isManagement();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Membership Applications ───────────────────────────────────────────
+    match /applications/{id} {
+      allow create: if true; // Public — anyone can apply
+      allow read: if isManagement();
+      allow update: if isManagement();
+      allow delete: if isAdmin();
+    }
+
+    // ── POS Sales ─────────────────────────────────────────────────────────
+    match /pos_sales/{id} {
+      allow read: if isManagement();
+      allow create: if isManagement();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Loans ─────────────────────────────────────────────────────────────
+    match /loans/{id} {
+      allow read: if isSignedIn();
+      allow create: if isManagement();
+      allow update: if isManagement();
+      allow delete: if isAdmin();
+    }
+
+    // ── Programs ──────────────────────────────────────────────────────────
+    match /programs/{id} {
+      allow read: if isSignedIn();
+      allow create, update: if isManagement();
+      allow delete: if isAdmin();
+    }
+
+    // ── Reserve ───────────────────────────────────────────────────────────
+    match /reserve/{id} {
+      allow read: if isManagement();
+      allow create, update: if isManagement();
+      allow delete: if isAdmin();
+    }
+
+    // ── Notifications ─────────────────────────────────────────────────────
+    match /users/{userId}/notifications/{notificationId} {
+      allow read: if isOwner(userId) || isManagement();
+      allow create: if isManagement();
+      allow update: if isOwner(userId) || isManagement();
+      allow delete: if isOwner(userId) || isManagement();
+    }
+
+    // ── System Settings ───────────────────────────────────────────────────
+    match /systemSettings/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Audit Logs ────────────────────────────────────────────────────────
+    match /auditLogs/{id} {
+      allow read: if isManagement();
+      allow write: if false;
+    }
+  }
+}

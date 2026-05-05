@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 17% 96%;
+    --foreground: 259 25% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 259 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 259 25% 15%;
+    --primary: 259 25% 45%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 230 60% 95%;
+    --secondary-foreground: 230 60% 35%;
+    --muted: 255 10% 90%;
+    --muted-foreground: 259 10% 40%;
+    --accent: 230 60% 65%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 259 15% 88%;
+    --input: 259 15% 88%;
+    --ring: 259 25% 45%;
+    --radius: 0.75rem;
+    --sidebar-background: 259 15% 94%;
+    --sidebar-foreground: 259 25% 20%;
+    --sidebar-primary: 259 25% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 259 20% 88%;
+    --sidebar-accent-foreground: 259 25% 20%;
+    --sidebar-border: 259 15% 85%;
+    --sidebar-ring: 259 25% 45%;
+  }
+  .dark {
+    --background: 259 25% 10%;
+    --foreground: 0 0% 98%;
+    --card: 259 25% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 259 25% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 259 25% 65%;
+    --primary-foreground: 259 25% 10%;
+    --secondary: 259 20% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 259 20% 20%;
+    --muted-foreground: 259 10% 65%;
+    --accent: 230 60% 65%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 259 20% 25%;
+    --input: 259 20% 25%;
+    --ring: 259 25% 65%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+  html { scroll-behavior: smooth; }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Premium glass card */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/60 shadow-xl;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[#5b4fa8] to-[#c0392b] bg-clip-text text-transparent;
+  }
+
+  /* Premium shadow */
+  .shadow-premium {
+    box-shadow: 0 4px 6px -1px rgba(91,79,168,0.08), 0 20px 40px -8px rgba(91,79,168,0.12);
+  }
+
+  /* Animate fade up */
+  .animate-fade-up {
+    animation: fadeUp 0.5s ease-out forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}

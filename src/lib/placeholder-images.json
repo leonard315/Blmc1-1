@@ -1,0 +1,22 @@
+{
+  "placeholderImages": [
+    {
+      "id": "coop-hero",
+      "description": "Bansud Cooperative main building or community gathering",
+      "imageUrl": "https://picsum.photos/seed/coop1/1200/600",
+      "imageHint": "community coop"
+    },
+    {
+      "id": "livestock",
+      "description": "Livestock and farming animals in a rural setting",
+      "imageUrl": "https://picsum.photos/seed/livestock/600/400",
+      "imageHint": "livestock farm"
+    },
+    {
+      "id": "member-profile",
+      "description": "Professional avatar placeholder",
+      "imageUrl": "https://picsum.photos/seed/member/200/200",
+      "imageHint": "profile avatar"
+    }
+  ]
+}
