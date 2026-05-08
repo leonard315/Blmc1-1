@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, Users, Zap, CreditCard, Archive,
+  LayoutDashboard, Users, Zap, CreditCard,
   Mail, LogOut, BookOpen, MessageSquare, Megaphone,
   Package, Wallet, Settings, Bell,
 } from 'lucide-react';
@@ -32,7 +32,6 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Applicants', href: '/applicants', icon: Mail,            iconBg: 'bg-pink-100',   iconColor: 'text-pink-500' },
   { label: 'Inventory',  href: '/inventory',  icon: Package,         iconBg: 'bg-orange-100', iconColor: 'text-orange-400' },
   { label: 'Financials', href: '/financials', icon: Wallet,          iconBg: 'bg-green-100',  iconColor: 'text-green-500' },
-  { label: 'Reserve',    href: '/reserve',    icon: Archive,         iconBg: 'bg-amber-100',  iconColor: 'text-amber-500' },
   { label: 'Settings',   href: '/settings',   icon: Settings,        iconBg: 'bg-gray-100',   iconColor: 'text-gray-500' },
 ];
 
