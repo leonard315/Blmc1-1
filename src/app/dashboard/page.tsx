@@ -14,7 +14,7 @@ import {
 import type { AppUser } from '@/context/AppContext';
 import {
   Users, UserCheck, ShoppingCart, TrendingUp, CalendarDays,
-  BarChart3, Inbox, AlertTriangle, CheckCircle2, UserPlus,
+  BarChart3, Inbox, AlertTriangle, CheckCircle2,
   ClipboardList, Megaphone, Wallet, BookOpen,
   CreditCard, Package, ChevronRight, ArrowUpRight,
 } from 'lucide-react';
@@ -161,28 +161,16 @@ function AdminDashboard() {
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" style={{ color: '#1a1a2e' }}>
             Admin Dashboard
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">Overview of BLMC operations and key metrics</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex flex-col items-end">
-            <span className="text-xs font-semibold text-gray-700">{dateStr}</span>
-            <span className="text-xs text-muted-foreground">{timeStr}</span>
-          </div>
-          <Button
-            asChild
-            size="sm"
-            className="shadow-md rounded-xl font-semibold"
-            style={{ background: 'linear-gradient(135deg, #5b4fa8, #7c6fd4)' }}
-          >
-            <Link href="/members/new">
-              <UserPlus className="w-4 h-4 mr-1.5" /> Add Member
-            </Link>
-          </Button>
+        <div className="flex flex-col items-start sm:items-end">
+          <span className="text-xs font-semibold text-gray-700">{dateStr}</span>
+          <span className="text-xs text-muted-foreground">{timeStr}</span>
         </div>
       </div>
 
