@@ -24,7 +24,7 @@ const salesCol        = () => collection(db(), 'pos_sales');
 // ── Types ──────────────────────────────────────────────────────────────────
 export interface Product {
   id: string; name: string; description: string;
-  price: number; stock: number; category: string; createdAt?: Timestamp;
+  price: number; stock: number; category: string; imageUrl?: string; createdAt?: Timestamp;
 }
 export interface Transaction {
   id: string; memberId: string; memberName: string;

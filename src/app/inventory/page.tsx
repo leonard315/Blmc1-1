@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Package, Search, Plus, Trash2, Edit2, X, Loader2, Save } from 'lucide-react';
+import { Package, Search, Plus, Trash2, Edit2, X, Loader2, Save, ImagePlus } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { ROLES } from '@/lib/mock-data';
 import {
@@ -34,7 +34,9 @@ export default function InventoryPage() {
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const unsub = subscribeProducts(p => { setProducts(p); setLoading(false); });
@@ -49,7 +51,7 @@ export default function InventoryPage() {
   );
 
   const resetForm = () => {
-    setName(''); setDescription(''); setPrice(''); setStock(''); setCategory('');
+    setName(''); setDescription(''); setPrice(''); setStock(''); setCategory(''); setImageUrl('');
     setEditProduct(null); setShowForm(false);
   };
 
@@ -57,13 +59,26 @@ export default function InventoryPage() {
     setEditProduct(p);
     setName(p.name); setDescription(p.description);
     setPrice(String(p.price)); setStock(String(p.stock)); setCategory(p.category);
+    setImageUrl(p.imageUrl ?? '');
     setShowForm(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500 * 1024) {
+      toast({ title: 'Image too large', description: 'Please choose an image under 500 KB.', variant: 'destructive' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setImageUrl(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const data = { name, description, price: Number(price), stock: Number(stock), category };
+    const data = { name, description, price: Number(price), stock: Number(stock), category, imageUrl };
     if (editProduct) {
       await updateProduct(editProduct.id, data);
       toast({ title: 'Product Updated', description: name });
@@ -124,6 +139,59 @@ export default function InventoryPage() {
                   <Label className="text-sm">Description</Label>
                   <Input value={description} onChange={e => setDescription(e.target.value)} className="h-9" />
                 </div>
+
+                {/* Image upload */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="text-sm">Product Image <span className="text-muted-foreground text-xs">(max 500 KB)</span></Label>
+                  <div className="flex items-start gap-4">
+                    {/* Preview */}
+                    <div
+                      className="w-24 h-24 rounded-xl border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden bg-muted/30 shrink-0 cursor-pointer hover:border-primary/50 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {imageUrl ? (
+                        <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                          <ImagePlus className="w-6 h-6 opacity-40" />
+                          <span className="text-[10px]">Click to add</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2 justify-center pt-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <ImagePlus className="w-3.5 h-3.5 mr-1.5" />
+                        {imageUrl ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                      {imageUrl && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs text-red-500 hover:text-red-600"
+                          onClick={() => { setImageUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                        >
+                          <X className="w-3.5 h-3.5 mr-1.5" /> Remove
+                        </Button>
+                      )}
+                      <p className="text-[11px] text-muted-foreground">JPG, PNG, WebP</p>
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </div>
+
                 <div className="md:col-span-2">
                   <Button type="submit" disabled={saving} className="h-9">
                     {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
@@ -151,8 +219,16 @@ export default function InventoryPage() {
               </div>
             ) : filtered.map(product => (
               <Card key={product.id} className="overflow-hidden shadow-md hover:shadow-xl transition-all border-none group bg-white/50">
-                <div className="h-32 bg-muted flex items-center justify-center relative">
-                  <Package className="w-12 h-12 text-muted-foreground opacity-20" />
+                <div className="h-40 bg-muted flex items-center justify-center relative overflow-hidden">
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <Package className="w-12 h-12 text-muted-foreground opacity-20" />
+                  )}
                   <Badge className="absolute top-3 right-3 bg-primary/90">{product.category}</Badge>
                   {product.stock < 10 && (
                     <Badge variant="destructive" className="absolute top-3 left-3 text-[10px]">Low Stock</Badge>
