@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, CheckCheck, Inbox, Loader2, Megaphone, UserPlus, CreditCard } from 'lucide-react';
-import { subscribeAnnouncements, subscribeApplications, subscribeTransactions } from '@/lib/firestore-service';
+import { subscribeAnnouncements, subscribeApplications, subscribeTransactions, subscribeMemberTransactions } from '@/lib/firestore-service';
 import { Button } from '@/components/ui/button';
 import { ROLES } from '@/lib/mock-data';
 
@@ -40,14 +40,20 @@ export default function NotificationsPage() {
       checkDone();
     });
 
-    // Transactions for member
-    const u2 = subscribeTransactions(txs => {
-      const myTxs = currentUser.role === ROLES.MEMBER ? txs.filter(t => t.memberId === currentUser.id) : txs;
-      const existing = notifs.filter(n => n.type !== 'transaction');
-      myTxs.slice(0, 10).forEach(t => existing.push({ id: `tx-${t.id}`, type: 'transaction', title: `Transaction: ${t.type.replace('_',' ')}`, description: `₱${t.amount.toLocaleString()} — ${t.description}`, date: t.date, read: false }));
-      notifs.splice(0, notifs.length, ...existing);
-      checkDone();
-    });
+    // Transactions — members only see their own, management sees all
+    const u2 = currentUser.role === ROLES.MEMBER
+      ? subscribeMemberTransactions(currentUser.id, txs => {
+          const existing = notifs.filter(n => n.type !== 'transaction');
+          txs.slice(0, 10).forEach(t => existing.push({ id: `tx-${t.id}`, type: 'transaction', title: `Transaction: ${t.type.replace('_',' ')}`, description: `₱${t.amount.toLocaleString()} — ${t.description}`, date: t.date, read: false }));
+          notifs.splice(0, notifs.length, ...existing);
+          checkDone();
+        })
+      : subscribeTransactions(txs => {
+          const existing = notifs.filter(n => n.type !== 'transaction');
+          txs.slice(0, 10).forEach(t => existing.push({ id: `tx-${t.id}`, type: 'transaction', title: `Transaction: ${t.type.replace('_',' ')}`, description: `₱${t.amount.toLocaleString()} — ${t.description}`, date: t.date, read: false }));
+          notifs.splice(0, notifs.length, ...existing);
+          checkDone();
+        });
 
     // Applications for admin
     let u3: (() => void) | undefined;

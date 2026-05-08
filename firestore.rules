@@ -12,12 +12,16 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    function userExists() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function isAdmin() {
-      return isSignedIn() && getUserData().role == 'administrator';
+      return userExists() && getUserData().role == 'administrator';
     }
 
     function isStaff() {
-      return isSignedIn() && getUserData().role == 'staff';
+      return userExists() && getUserData().role == 'staff';
     }
 
     function isManagement() {
