@@ -102,7 +102,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={async () => { await logout(); router.push('/login'); }}
                   className="text-red-500 focus:text-red-500 cursor-pointer rounded-xl mx-1 px-3 py-2.5 mb-1"
                 >
                   <LogOut className="w-4 h-4 mr-2.5" /> Log out

@@ -90,7 +90,7 @@ export default function PosLayout({ children }: { children: React.ReactNode }) {
         {/* Logout */}
         <div className="p-3 border-t border-white/10">
           <button
-            onClick={logout}
+            onClick={async () => { await logout(); router.push('/login'); }}
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors w-full"
           >
             <LogOut className="w-4 h-4" />

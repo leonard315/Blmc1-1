@@ -133,7 +133,7 @@ export function AppSidebar() {
       {/* Footer — Logout */}
       <SidebarFooter className="p-3 border-t border-sidebar-border">
         <Button
-          onClick={() => { logout(); setOpenMobile(false); }}
+          onClick={async () => { await logout(); setOpenMobile(false); router.push('/login'); }}
           variant="ghost"
           className="w-full rounded-xl h-10 font-semibold gap-2 text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
         >

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAppContext } from '@/context/AppContext';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,7 @@ type Tab = 'profile' | 'security' | 'notifications' | 'appearance';
 
 export default function SettingsPage() {
   const { currentUser, logout } = useAppContext();
+  const router = useRouter();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
 
@@ -133,7 +135,7 @@ export default function SettingsPage() {
             {/* Sign out — hidden on mobile (in tabs area) */}
             <div className="hidden md:block mt-6 pt-4 border-t">
               <button
-                onClick={logout}
+                onClick={async () => { await logout(); router.push('/login'); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors text-left"
               >
                 <LogOut className="w-4 h-4 shrink-0" /> Sign Out
