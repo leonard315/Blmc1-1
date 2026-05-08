@@ -40,7 +40,8 @@ function buildMonthlyData(transactions: Transaction[]) {
 // ─── Admin Dashboard ────────────────────────────────────────────────────────
 
 function AdminDashboard() {
-  const { currentUser } = useAppContext();
+  const { currentUser: _currentUser } = useAppContext();
+  // REDESIGNED BELOW
   const [now, setNow] = useState(new Date());
   const [allUsers, setAllUsers] = useState<AppUser[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -78,330 +79,251 @@ function AdminDashboard() {
     .filter(t => t.date.startsWith(thisYear))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const recentTransactions = [...transactions].slice(0, 5);
+  const recentTransactions = [...transactions].slice(0, 10);
   const lowStockProducts = products.filter(p => p.stock < 10);
   const monthlyChartData = buildMonthlyData(transactions);
 
-  const statCards = [
+  // Stat bar items with Google-style hex icon colors
+  const statItems = [
     {
       label: 'Total Members',
-      sub: 'All',
       value: totalMembers,
       icon: Users,
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-600',
+      iconBg: '#e8f0fe',
+      iconColor: '#1a73e8',
       href: '/members',
     },
     {
       label: 'Active Members',
-      sub: 'Active',
       value: activeMembers,
       icon: UserCheck,
-      iconBg: 'bg-green-100',
-      iconColor: 'text-green-600',
+      iconBg: '#e6f4ea',
+      iconColor: '#1e8e3e',
       href: '/members',
     },
     {
       label: 'Applicants',
-      sub: `${pendingApplicants} pending`,
       value: pendingApplicants,
       icon: ClipboardList,
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-500',
+      iconBg: '#fce8e6',
+      iconColor: '#d93025',
       href: '/applicants',
-      badge: pendingApplicants > 0,
     },
     {
       label: 'Supply Requests',
-      sub: `${supplyRequests} pending`,
       value: supplyRequests,
       icon: ShoppingCart,
-      iconBg: 'bg-red-100',
-      iconColor: 'text-red-500',
+      iconBg: '#fef7e0',
+      iconColor: '#f9ab00',
       href: '/inventory',
-      badge: supplyRequests > 0,
     },
     {
       label: 'Daily Sales',
-      sub: 'Today',
       value: `₱${dailySales.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`,
       icon: CalendarDays,
-      iconBg: 'bg-sky-100',
-      iconColor: 'text-sky-600',
+      iconBg: '#e8f0fe',
+      iconColor: '#1a73e8',
     },
     {
       label: 'Monthly Sales',
-      sub: 'Month',
       value: `₱${monthlySales.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`,
       icon: BarChart3,
-      iconBg: 'bg-violet-100',
-      iconColor: 'text-violet-600',
+      iconBg: '#e6f4ea',
+      iconColor: '#1e8e3e',
     },
     {
       label: 'Annual Sales',
-      sub: 'Year',
       value: `₱${annualSales.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`,
       icon: TrendingUp,
-      iconBg: 'bg-emerald-100',
-      iconColor: 'text-emerald-600',
+      iconBg: '#fce8e6',
+      iconColor: '#d93025',
     },
   ];
 
   const quickActions = [
-    { label: 'Review Applicants', href: '/applicants', iconBg: 'bg-orange-100', iconColor: 'text-orange-500', icon: ClipboardList },
-    { label: 'Manage Loans', href: '/loans', iconBg: 'bg-blue-100', iconColor: 'text-blue-600', icon: CreditCard },
-    { label: 'Programs', href: '/programs', iconBg: 'bg-violet-100', iconColor: 'text-violet-600', icon: Megaphone },
-    { label: 'Financial Reports', href: '/financials', iconBg: 'bg-green-100', iconColor: 'text-green-600', icon: TrendingUp },
-    { label: 'Open POS', href: '/pos/login', iconBg: 'bg-green-100', iconColor: 'text-green-600', icon: ShoppingCart, pos: true },
+    { label: 'Review Applicants', href: '/applicants', iconBg: '#fce8e6', iconColor: '#d93025', icon: ClipboardList },
+    { label: 'Manage Loans', href: '/loans', iconBg: '#e8f0fe', iconColor: '#1a73e8', icon: CreditCard },
+    { label: 'Programs', href: '/programs', iconBg: '#fef7e0', iconColor: '#f9ab00', icon: Megaphone },
+    { label: 'Financial Reports', href: '/financials', iconBg: '#e6f4ea', iconColor: '#1e8e3e', icon: TrendingUp },
   ];
 
-  const dateStr = now.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
-  const timeStr = now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
   return (
-    <div className="space-y-5 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" style={{ color: '#1a1a2e' }}>
-            Admin Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Overview of BLMC operations and key metrics</p>
-        </div>
-        <div className="flex flex-col items-start sm:items-end">
-          <span className="text-xs font-semibold text-gray-700">{dateStr}</span>
-          <span className="text-xs text-muted-foreground">{timeStr}</span>
-        </div>
-      </div>
+    <div className="space-y-4">
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 sm:gap-3">
-        {statCards.map((card) => (
-          <Card
-            key={card.label}
-            className="border-0 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5 bg-white"
-            onClick={() => card.href && (window.location.href = card.href)}
-          >
-            <CardContent className="p-3 sm:p-4 flex flex-col gap-2.5">
-              <div className="flex items-center justify-between">
-                <div className={`p-1.5 sm:p-2 rounded-xl ${card.iconBg}`}>
-                  <card.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${card.iconColor}`} />
-                </div>
-                {card.badge ? (
-                  <Badge variant="destructive" className="text-[9px] sm:text-[10px] px-1.5 py-0 rounded-full">
-                    {card.sub}
-                  </Badge>
-                ) : (
-                  <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium text-right leading-tight">
-                    {card.sub}
-                  </span>
-                )}
+      {/* ── Top stat bar ── */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+        <div className="flex min-w-max">
+          {statItems.map((item, i) => (
+            <div
+              key={item.label}
+              className={`flex items-center gap-3 px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors flex-1 min-w-[130px] ${i < statItems.length - 1 ? 'border-r border-gray-100' : ''}`}
+              onClick={() => item.href && (window.location.href = item.href)}
+            >
+              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: item.iconBg }}>
+                <item.icon className="w-4 h-4" style={{ color: item.iconColor }} />
               </div>
-              <div>
-                <p className="text-base sm:text-xl font-extrabold leading-none truncate" style={{ color: '#1a1a2e' }}>
-                  {card.value}
-                </p>
-                <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 leading-tight">{card.label}</p>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-gray-900 leading-none truncate">{item.value}</p>
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">{item.label}</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-        <Card className="shadow-sm border-0 bg-white">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+      {/* ── Charts row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Monthly Sales */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <div className="flex items-start justify-between mb-1">
             <div>
-              <CardTitle className="text-sm sm:text-base font-bold" style={{ color: '#1a1a2e' }}>
-                Monthly Sales
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">Revenue per month — {thisYear}</p>
+              <p className="text-sm font-semibold text-gray-800">Monthly Sales</p>
+              <p className="text-xs text-gray-400">Revenue per month — {thisYear}</p>
             </div>
-            <div className="p-1.5 rounded-lg bg-violet-50">
-              <BarChart3 className="w-4 h-4 text-violet-500" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ResponsiveContainer width="100%" height={180}>
-              <AreaChart data={monthlyChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#5b4fa8" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#5b4fa8" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} tickFormatter={(v) => `₱${v}`} />
-                <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px' }}
-                  formatter={(v: number) => [`₱${v.toLocaleString()}`, 'Sales']}
-                />
-                <Area type="monotone" dataKey="sales" stroke="#5b4fa8" strokeWidth={2.5} fill="url(#salesGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+            <button className="text-gray-300 hover:text-gray-500 transition-colors">
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <AreaChart data={monthlyChartData} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#5b4fa8" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#5b4fa8" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#bbb' }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: '#bbb' }} tickLine={false} axisLine={false} tickFormatter={v => v === 0 ? '0' : `₱${(v/1000).toFixed(0)}k`} />
+              <Tooltip
+                contentStyle={{ borderRadius: '8px', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', fontSize: '11px' }}
+                formatter={(v: number) => [`₱${v.toLocaleString()}`, 'Sales']}
+              />
+              <Area type="monotone" dataKey="sales" stroke="#5b4fa8" strokeWidth={2} fill="url(#salesGrad)" dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
 
-        <Card className="shadow-sm border-0 bg-white">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        {/* Supply Requests */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <div className="flex items-start justify-between mb-1">
             <div>
-              <CardTitle className="text-sm sm:text-base font-bold" style={{ color: '#1a1a2e' }}>
-                Supply Requests
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">Requests per month — {thisYear}</p>
+              <p className="text-sm font-semibold text-gray-800">Supply Requests</p>
+              <p className="text-xs text-gray-400">Requests per month — {thisYear}</p>
             </div>
-            <div className="p-1.5 rounded-lg bg-red-50">
-              <ShoppingCart className="w-4 h-4 text-red-400" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={monthlyChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px' }}
-                  formatter={(v: number) => [v, 'Requests']}
-                />
-                <Bar dataKey="requests" fill="#c0392b" radius={[6, 6, 0, 0]} opacity={0.85} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+            <button className="text-gray-300 hover:text-gray-500 transition-colors">
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={monthlyChartData} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#bbb' }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: '#bbb' }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: '8px', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', fontSize: '11px' }}
+                formatter={(v: number) => [v, 'Requests']}
+              />
+              <Bar dataKey="requests" fill="#e53935" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5">
-        {/* Recent Transactions */}
-        <Card className="shadow-sm border-0 bg-white">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm sm:text-base font-bold" style={{ color: '#1a1a2e' }}>
-              Recent Transactions
-            </CardTitle>
-            <Button variant="ghost" size="sm" asChild className="text-xs text-primary h-7 px-2 rounded-lg">
-              <Link href="/financials" className="flex items-center gap-1">
-                View all <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
+      {/* ── Bottom row ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+        {/* Recent Transactions — takes 2 cols */}
+        <div className="xl:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
+            <p className="text-sm font-semibold text-gray-800">Recent Transactions</p>
+            <Link href="/financials" className="text-xs text-blue-500 hover:underline flex items-center gap-0.5">
+              View all <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="divide-y divide-gray-50">
             {recentTransactions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-                <Inbox className="w-10 h-10 opacity-20" />
-                <p className="text-sm">No recent transactions.</p>
+              <div className="flex flex-col items-center justify-center py-12 text-gray-300 gap-2">
+                <Inbox className="w-8 h-8" />
+                <p className="text-xs">No transactions yet.</p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {recentTransactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between text-sm py-1">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                          tx.type === 'deposit' ? 'bg-emerald-50' :
-                          tx.type === 'payment' ? 'bg-blue-50' : 'bg-red-50'
-                        }`}
-                      >
-                        <div className={`w-2 h-2 rounded-full ${
-                          tx.type === 'deposit' ? 'bg-emerald-500' :
-                          tx.type === 'payment' ? 'bg-blue-500' : 'bg-red-400'
-                        }`} />
-                      </div>
-                      <div>
-                        <p className="font-semibold leading-none text-gray-800">{tx.memberName}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{tx.description}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-bold text-sm ${tx.type === 'debt_charge' ? 'text-red-500' : 'text-emerald-600'}`}>
-                        {tx.type === 'debt_charge' ? '-' : '+'}₱{tx.amount.toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">{tx.date}</p>
-                    </div>
+            ) : recentTransactions.map(tx => (
+              <div key={tx.id} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/60 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                    tx.type === 'deposit' ? 'bg-emerald-50' : tx.type === 'payment' ? 'bg-blue-50' : 'bg-red-50'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      tx.type === 'deposit' ? 'bg-emerald-400' : tx.type === 'payment' ? 'bg-blue-400' : 'bg-red-400'
+                    }`} />
                   </div>
-                ))}
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-gray-700 truncate">{tx.memberName}</p>
+                    <p className="text-[11px] text-gray-400 truncate">{tx.description}</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 ml-3">
+                  <p className={`text-xs font-semibold ${tx.type === 'debt_charge' ? 'text-red-500' : 'text-emerald-600'}`}>
+                    {tx.type === 'debt_charge' ? '-' : '+'}₱{tx.amount.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-gray-400">{tx.date}</p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </div>
 
-        {/* Right column: Low Stock + Quick Actions */}
+        {/* Right panel: Low Stock + Quick Actions */}
         <div className="space-y-4">
-          {/* Low Stock Alerts */}
-          <Card className="shadow-sm border-0 bg-white">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm sm:text-base font-bold" style={{ color: '#1a1a2e' }}>
-                Low Stock Alerts
-              </CardTitle>
-              <Button variant="ghost" size="sm" asChild className="text-xs text-primary h-7 px-2 rounded-lg">
-                <Link href="/inventory" className="flex items-center gap-1">
-                  Inventory <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent>
+          {/* Low Stock */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+              <p className="text-sm font-semibold text-gray-800">Low Stock Alerts</p>
+              <Link href="/inventory" className="text-xs text-blue-500 hover:underline">Inventory</Link>
+            </div>
+            <div className="p-3">
               {lowStockProducts.length === 0 ? (
-                <div className="flex items-center gap-2.5 text-sm text-emerald-700 bg-emerald-50 rounded-xl px-4 py-3">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span className="font-medium">All items in-stock</span>
+                <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-2.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium">All items in stock</span>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {lowStockProducts.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between text-sm bg-red-50 rounded-xl px-3 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-                        <span className="font-medium text-gray-800">{p.name}</span>
+                <div className="space-y-1.5">
+                  {lowStockProducts.slice(0, 4).map(p => (
+                    <div key={p.id} className="flex items-center justify-between text-xs bg-red-50 rounded-lg px-3 py-2">
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle className="w-3 h-3 text-red-400 shrink-0" />
+                        <span className="text-gray-700 truncate max-w-[120px]">{p.name}</span>
                       </div>
-                      <Badge variant="destructive" className="text-[10px] rounded-full">{p.stock} left</Badge>
+                      <span className="text-red-500 font-semibold shrink-0">{p.stock} left</span>
                     </div>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Quick Actions */}
-          <Card className="shadow-sm border-0 bg-white">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm sm:text-base font-bold" style={{ color: '#1a1a2e' }}>
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1.5">
-              {quickActions.map((action) => (
-                action.pos ? (
-                  <Link
-                    key={action.label}
-                    href={action.href}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 transition-all group"
-                  >
-                    <div className="p-1.5 rounded-lg bg-emerald-100">
-                      <action.icon className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <span className="text-sm font-bold text-emerald-700 group-hover:text-emerald-800">{action.label}</span>
-                    <ChevronRight className="w-4 h-4 ml-auto text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                ) : (
-                  <Link
-                    key={action.label}
-                    href={action.href}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all group"
-                  >
-                    <div className={`p-1.5 rounded-lg ${action.iconBg}`}>
-                      <action.icon className={`w-4 h-4 ${action.iconColor}`} />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
-                      {action.label}
-                    </span>
-                    <ChevronRight className="w-4 h-4 ml-auto text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                  </Link>
-                )
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-50">
+              <p className="text-sm font-semibold text-gray-800">Quick Actions</p>
+            </div>
+            <div className="p-2 space-y-0.5">
+              {quickActions.map(action => (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: action.iconBg }}>
+                    <action.icon className="w-3.5 h-3.5" style={{ color: action.iconColor }} />
+                  </div>
+                  <span className="text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors flex-1">{action.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all" />
+                </Link>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
