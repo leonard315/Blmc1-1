@@ -43,7 +43,6 @@ const statusColor: Record<string, string> = {
 const ROLE_OPTIONS = [
   { label: 'Member', value: ROLES.MEMBER },
   { label: 'Staff', value: ROLES.STAFF },
-  { label: 'Administrator', value: ROLES.ADMIN },
 ] as const;
 
 const STATUS_OPTIONS = [
