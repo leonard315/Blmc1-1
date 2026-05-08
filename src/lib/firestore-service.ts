@@ -66,7 +66,7 @@ export async function addUser(data: Omit<AppUser, 'id'>): Promise<string> {
   return ref.id;
 }
 export async function updateUser(uid: string, data: Partial<AppUser>): Promise<void> {
-  await updateDoc(doc(db(), 'users', uid), data as Record<string, unknown>);
+  await updateDoc(doc(db(), 'users', uid), data as any);
 }
 
 // ── Products ───────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export async function addProduct(data: Omit<Product, 'id'>): Promise<string> {
   return ref.id;
 }
 export async function updateProduct(id: string, data: Partial<Product>): Promise<void> {
-  await updateDoc(doc(db(), 'products', id), data as Record<string, unknown>);
+  await updateDoc(doc(db(), 'products', id), data as any);
 }
 export async function deleteProduct(id: string): Promise<void> {
   await deleteDoc(doc(db(), 'products', id));
@@ -119,7 +119,7 @@ export async function addAnnouncement(data: Omit<Announcement, 'id'>): Promise<v
   await addDoc(announcementsCol(), { ...data, createdAt: serverTimestamp() });
 }
 export async function updateAnnouncement(id: string, data: Partial<Announcement>): Promise<void> {
-  await updateDoc(doc(db(), 'announcements', id), data as Record<string, unknown>);
+  await updateDoc(doc(db(), 'announcements', id), data as any);
 }
 export async function deleteAnnouncement(id: string): Promise<void> {
   await deleteDoc(doc(db(), 'announcements', id));
@@ -137,7 +137,7 @@ export async function addApplication(data: Omit<Application, 'id'>): Promise<voi
   await addDoc(applicationsCol(), { ...data, submittedAt: serverTimestamp() });
 }
 export async function updateApplication(id: string, data: Partial<Application>): Promise<void> {
-  await updateDoc(doc(db(), 'applications', id), data as Record<string, unknown>);
+  await updateDoc(doc(db(), 'applications', id), data as any);
 }
 
 // ── POS Sales ──────────────────────────────────────────────────────────────
