@@ -20,11 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Search, UserPlus, Loader2 } from 'lucide-react';
-import { subscribeUsers, updateUser, addUser } from '@/lib/firestore-service';
+import { Users, Search, UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
+import { subscribeUsers, updateUser } from '@/lib/firestore-service';
 import { ROLES } from '@/lib/mock-data';
 import type { AppUser } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase';
 
 const statusColor: Record<string, string> = {
   active:      'bg-green-100 text-green-700',
@@ -51,6 +57,7 @@ const STATUS_OPTIONS = [
 type NewMemberForm = {
   name: string;
   email: string;
+  password: string;
   role: AppUser['role'];
   status: AppUser['status'];
   savings: string;
@@ -61,6 +68,7 @@ type NewMemberForm = {
 const defaultForm: NewMemberForm = {
   name: '',
   email: '',
+  password: '',
   role: ROLES.MEMBER,
   status: 'active',
   savings: '0',
@@ -78,6 +86,7 @@ export default function MembersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<NewMemberForm>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeUsers(all => { setUsers(all); setLoading(false); });
@@ -98,6 +107,7 @@ export default function MembersPage() {
 
   const openDialog = () => {
     setForm(defaultForm);
+    setShowPassword(false);
     setDialogOpen(true);
   };
 
@@ -111,9 +121,20 @@ export default function MembersPage() {
       toast({ title: 'Validation Error', description: 'Name and email are required.', variant: 'destructive' });
       return;
     }
+    if (form.password.length < 6) {
+      toast({ title: 'Validation Error', description: 'Password must be at least 6 characters.', variant: 'destructive' });
+      return;
+    }
     setSubmitting(true);
     try {
-      await addUser({
+      const { auth, firestore } = initializeFirebase();
+
+      // 1. Create Firebase Auth account
+      const credential = await createUserWithEmailAndPassword(auth, form.email.trim(), form.password);
+      const uid = credential.user.uid;
+
+      // 2. Save Firestore profile using the Auth UID
+      const userData: Omit<AppUser, 'id'> = {
         name: form.name.trim(),
         email: form.email.trim(),
         role: form.role,
@@ -121,8 +142,16 @@ export default function MembersPage() {
         savings: parseFloat(form.savings) || 0,
         debt: parseFloat(form.debt) || 0,
         joinedDate: form.joinedDate,
+      };
+      await setDoc(doc(firestore, 'users', uid), userData);
+
+      // 3. Send password reset email so the member can set their own password
+      await sendPasswordResetEmail(auth, form.email.trim());
+
+      toast({
+        title: 'Member Added',
+        description: `${form.name.trim()} has been added. A welcome email with login instructions has been sent to ${form.email.trim()}.`,
       });
-      toast({ title: 'Member Added', description: `${form.name.trim()} has been added successfully.` });
       setDialogOpen(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
@@ -276,6 +305,37 @@ export default function MembersPage() {
                 onChange={e => handleFormChange('email', e.target.value)}
                 required
               />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="member-password">
+                Temporary Password <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="member-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min. 6 characters"
+                  value={form.password}
+                  onChange={e => handleFormChange('password', e.target.value)}
+                  required
+                  minLength={6}
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                A password reset email will be sent to the member so they can set their own password.
+              </p>
             </div>
 
             {/* Role & Status */}
