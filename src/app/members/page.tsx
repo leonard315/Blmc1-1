@@ -5,8 +5,23 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Users, Search, UserPlus, Loader2 } from 'lucide-react';
-import { subscribeUsers, updateUser } from '@/lib/firestore-service';
+import { subscribeUsers, updateUser, addUser } from '@/lib/firestore-service';
 import { ROLES } from '@/lib/mock-data';
 import type { AppUser } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
@@ -19,11 +34,50 @@ const statusColor: Record<string, string> = {
   deactivated: 'bg-gray-100 text-gray-500',
 };
 
+const ROLE_OPTIONS = [
+  { label: 'Member', value: ROLES.MEMBER },
+  { label: 'Staff', value: ROLES.STAFF },
+  { label: 'Administrator', value: ROLES.ADMIN },
+] as const;
+
+const STATUS_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Approved', value: 'approved' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Rejected', value: 'rejected' },
+  { label: 'Deactivated', value: 'deactivated' },
+] as const;
+
+type NewMemberForm = {
+  name: string;
+  email: string;
+  role: AppUser['role'];
+  status: AppUser['status'];
+  savings: string;
+  debt: string;
+  joinedDate: string;
+};
+
+const defaultForm: NewMemberForm = {
+  name: '',
+  email: '',
+  role: ROLES.MEMBER,
+  status: 'active',
+  savings: '0',
+  debt: '0',
+  joinedDate: new Date().toISOString().slice(0, 10),
+};
+
 export default function MembersPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [form, setForm] = useState<NewMemberForm>(defaultForm);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeUsers(all => { setUsers(all); setLoading(false); });
@@ -42,6 +96,42 @@ export default function MembersPage() {
     toast({ title: newStatus === 'deactivated' ? 'Account Deactivated' : 'Account Reactivated', description: u.name });
   };
 
+  const openDialog = () => {
+    setForm(defaultForm);
+    setDialogOpen(true);
+  };
+
+  const handleFormChange = (field: keyof NewMemberForm, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim()) {
+      toast({ title: 'Validation Error', description: 'Name and email are required.', variant: 'destructive' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await addUser({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        status: form.status,
+        savings: parseFloat(form.savings) || 0,
+        debt: parseFloat(form.debt) || 0,
+        joinedDate: form.joinedDate,
+      });
+      toast({ title: 'Member Added', description: `${form.name.trim()} has been added successfully.` });
+      setDialogOpen(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      toast({ title: 'Error Adding Member', description: message, variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-5">
@@ -51,7 +141,7 @@ export default function MembersPage() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Members</h1>
             <p className="text-sm text-muted-foreground">Manage all cooperative members.</p>
           </div>
-          <Button size="sm" className="shadow-md w-full sm:w-auto">
+          <Button size="sm" className="shadow-md w-full sm:w-auto" onClick={openDialog}>
             <UserPlus className="w-4 h-4 mr-1" /> Add Member
           </Button>
         </div>
@@ -155,6 +245,119 @@ export default function MembersPage() {
           ))}
         </div>
       </div>
+
+      {/* Add Member Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Member</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="member-name">Name <span className="text-red-500">*</span></Label>
+              <Input
+                id="member-name"
+                placeholder="Full name"
+                value={form.name}
+                onChange={e => handleFormChange('name', e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <Label htmlFor="member-email">Email <span className="text-red-500">*</span></Label>
+              <Input
+                id="member-email"
+                type="email"
+                placeholder="email@example.com"
+                value={form.email}
+                onChange={e => handleFormChange('email', e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Role & Status */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="member-role">Role</Label>
+                <Select value={form.role} onValueChange={v => handleFormChange('role', v)}>
+                  <SelectTrigger id="member-role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map(r => (
+                      <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="member-status">Status</Label>
+                <Select value={form.status} onValueChange={v => handleFormChange('status', v)}>
+                  <SelectTrigger id="member-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map(s => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Savings & Debt */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="member-savings">Initial Savings (₱)</Label>
+                <Input
+                  id="member-savings"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                  value={form.savings}
+                  onChange={e => handleFormChange('savings', e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="member-debt">Initial Debt (₱)</Label>
+                <Input
+                  id="member-debt"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                  value={form.debt}
+                  onChange={e => handleFormChange('debt', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Joined Date */}
+            <div className="space-y-1.5">
+              <Label htmlFor="member-joined">Joined Date</Label>
+              <Input
+                id="member-joined"
+                type="date"
+                value={form.joinedDate}
+                onChange={e => handleFormChange('joinedDate', e.target.value)}
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Saving…</> : 'Add Member'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

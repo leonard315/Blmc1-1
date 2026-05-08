@@ -61,6 +61,10 @@ export async function getUsers(): Promise<AppUser[]> {
 export function subscribeUsers(cb: (users: AppUser[]) => void): Unsubscribe {
   return onSnapshot(usersCol(), snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as AppUser))));
 }
+export async function addUser(data: Omit<AppUser, 'id'>): Promise<string> {
+  const ref = await addDoc(usersCol(), { ...data });
+  return ref.id;
+}
 export async function updateUser(uid: string, data: Partial<AppUser>): Promise<void> {
   await updateDoc(doc(db(), 'users', uid), data as Record<string, unknown>);
 }
