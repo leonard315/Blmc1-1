@@ -27,10 +27,16 @@ import type { AppUser } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
+import emailjs from '@emailjs/browser';
+import {
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
+  EMAILJS_PUBLIC_KEY,
+  APP_LOGIN_URL,
+} from '@/lib/emailjs-config';
 
 const statusColor: Record<string, string> = {
   active:      'bg-green-100 text-green-700',
@@ -144,8 +150,19 @@ export default function MembersPage() {
       };
       await setDoc(doc(firestore, 'users', uid), userData);
 
-      // 3. Send password reset email so the member can set their own password
-      await sendPasswordResetEmail(auth, form.email.trim());
+      // 3. Send welcome email with credentials via EmailJS
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_name:   form.name.trim(),
+          to_email:  form.email.trim(),
+          email:     form.email.trim(),
+          password:  form.password,
+          login_url: APP_LOGIN_URL,
+        },
+        EMAILJS_PUBLIC_KEY,
+      );
 
       toast({
         title: 'Member Added',
